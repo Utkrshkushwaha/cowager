@@ -8,7 +8,14 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors({ origin: process.env.CLIENT_URL || 'http://localhost:3000', credentials: true }));
+app.use(cors({
+  origin: [
+    process.env.CLIENT_URL || 'http://localhost:3000',
+    'http://localhost:3000',
+    'https://cowager-app-seven.vercel.app'
+  ],
+  credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -29,35 +36,41 @@ app.get('/', (req, res) => {
 // Connect to MongoDB and start server
 const PORT = process.env.PORT || 5000;
 
-// Start server immediately — don't wait for DB
-app.listen(PORT, () => console.log(`🚀 CoWager server running on port ${PORT}`));
-
 const connectDB = async () => {
   const uri = process.env.MONGO_URI;
-  console.log('🔄 Connecting to MongoDB...');
-  console.log('URI prefix:', uri ? uri.substring(0, 40) + '...' : 'NOT SET');
+  if (!uri) { console.error('❌ MONGO_URI not set'); return; }
 
   try {
     await mongoose.connect(uri, {
-      serverSelectionTimeoutMS: 30000,
-      socketTimeoutMS: 45000,
-      family: 4, // Force IPv4 — fixes DNS issues on some hosting providers
-      maxPoolSize: 10,
-      minPoolSize: 1,
-      heartbeatFrequencyMS: 10000,
+      serverSelectionTimeoutMS: 60000,
+      socketTimeoutMS: 60000,
+      connectTimeoutMS: 60000,
+      family: 4,
+      maxPoolSize: 5,
       retryWrites: true,
+      w: 'majority',
     });
     console.log('✅ MongoDB connected successfully');
   } catch (err) {
-    console.error('❌ MongoDB connection error:', err.message);
-    console.log('🔄 Retrying in 5 seconds...');
-    setTimeout(connectDB, 5000);
+    console.error('❌ MongoDB error:', err.message);
+    console.log('🔄 Retrying in 10 seconds...');
+    setTimeout(connectDB, 10000);
   }
 };
 
 mongoose.connection.on('disconnected', () => {
   console.log('⚠️ MongoDB disconnected. Reconnecting...');
-  setTimeout(connectDB, 5000);
+  setTimeout(connectDB, 10000);
 });
 
-connectDB();
+mongoose.connection.on('connected', () => {
+  console.log('✅ MongoDB connection established');
+});
+
+// Connect then start server
+connectDB().then(() => {
+  app.listen(PORT, () => console.log(`🚀 CoWager server running on port ${PORT}`));
+}).catch(() => {
+  // Start server anyway so health check works
+  app.listen(PORT, () => console.log(`🚀 CoWager server running on port ${PORT} (DB pending)`));
+});
