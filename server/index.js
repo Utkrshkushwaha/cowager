@@ -42,6 +42,10 @@ const connectDB = async () => {
       serverSelectionTimeoutMS: 30000,
       socketTimeoutMS: 45000,
       family: 4, // Force IPv4 — fixes DNS issues on some hosting providers
+      maxPoolSize: 10,
+      minPoolSize: 1,
+      heartbeatFrequencyMS: 10000,
+      retryWrites: true,
     });
     console.log('✅ MongoDB connected successfully');
   } catch (err) {
