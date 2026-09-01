@@ -29,13 +29,31 @@ app.get('/', (req, res) => {
 // Connect to MongoDB and start server
 const PORT = process.env.PORT || 5000;
 
-mongoose
-  .connect(process.env.MONGO_URI)
-  .then(() => {
-    console.log('✅ MongoDB connected');
-    app.listen(PORT, () => console.log(`🚀 CoWager server running on port ${PORT}`));
-  })
-  .catch((err) => {
+// Start server immediately — don't wait for DB
+app.listen(PORT, () => console.log(`🚀 CoWager server running on port ${PORT}`));
+
+const connectDB = async () => {
+  const uri = process.env.MONGO_URI;
+  console.log('🔄 Connecting to MongoDB...');
+  console.log('URI prefix:', uri ? uri.substring(0, 40) + '...' : 'NOT SET');
+
+  try {
+    await mongoose.connect(uri, {
+      serverSelectionTimeoutMS: 30000,
+      socketTimeoutMS: 45000,
+      family: 4, // Force IPv4 — fixes DNS issues on some hosting providers
+    });
+    console.log('✅ MongoDB connected successfully');
+  } catch (err) {
     console.error('❌ MongoDB connection error:', err.message);
-    process.exit(1);
-  });
+    console.log('🔄 Retrying in 5 seconds...');
+    setTimeout(connectDB, 5000);
+  }
+};
+
+mongoose.connection.on('disconnected', () => {
+  console.log('⚠️ MongoDB disconnected. Reconnecting...');
+  setTimeout(connectDB, 5000);
+});
+
+connectDB();
