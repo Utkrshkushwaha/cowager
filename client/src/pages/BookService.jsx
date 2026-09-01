@@ -10,7 +10,8 @@ const BookService = () => {
   const navigate = useNavigate();
 
   const preselectedService = searchParams.get('service');
-  const preselectedWorker = searchParams.get('worker');
+  // preselectedWorker reserved for future worker-specific booking
+  // const preselectedWorker = searchParams.get('worker');
 
   const [services, setServices] = useState([]);
   const [form, setForm] = useState({
@@ -46,7 +47,7 @@ const BookService = () => {
         bookingType: form.bookingType,
         estimatedDuration: Number(form.estimatedDuration)
       };
-      const res = await API.post('/bookings', payload);
+      const _res = await API.post('/bookings', payload);
       toast.success('Booking placed successfully!');
       navigate('/bookings');
     } catch (err) {

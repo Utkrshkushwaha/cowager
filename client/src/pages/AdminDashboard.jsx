@@ -53,7 +53,7 @@ const AdminDashboard = () => {
     } catch { toast.error('Failed to verify worker'); }
   };
 
-  const toggleUser = async (userId) => {
+  const _toggleUser = async (userId) => {
     try {
       await API.put(`/admin/users/${userId}/toggle`);
       toast.success('User status updated');
