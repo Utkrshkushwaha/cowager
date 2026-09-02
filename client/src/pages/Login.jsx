@@ -72,15 +72,7 @@ const Login = () => {
           </p>
         </div>
 
-        {/* Demo Credentials */}
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-          <p className="text-xs font-semibold text-blue-700 mb-2">Demo Credentials</p>
-          <div className="space-y-1 text-xs text-blue-600">
-            <p>Admin: admin@cowager.com / admin123</p>
-            <p>Worker: worker@cowager.com / worker123</p>
-            <p>Customer: customer@cowager.com / customer123</p>
-          </div>
-        </div>
+
       </div>
     </div>
   );
