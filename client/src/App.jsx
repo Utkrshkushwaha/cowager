@@ -21,6 +21,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import Profile from './pages/Profile';
 import About from './pages/About';
 import Review from './pages/Review';
+import AdminLogin from './pages/AdminLogin';
 
 const App = () => (
   <AuthProvider>
@@ -63,6 +64,9 @@ const App = () => (
                 <AdminDashboard />
               </ProtectedRoute>
             } />
+
+            {/* Secret Admin Login — not linked publicly */}
+            <Route path="/cw-admin-secure-2024" element={<AdminLogin />} />
 
             {/* Review */}
             <Route path="/review/:bookingId" element={
